@@ -40,6 +40,15 @@ public class GreetingController {
         return greeting;
     }
 
+    private static boolean delete(BigInteger id) {
+        Greeting deleteGreeting = greetingMap.remove(id);
+        if (deleteGreeting == null) {
+            return false;
+        }
+        return true;
+    }
+
+
     static {
         Greeting g1 = new Greeting();
         g1.setText("hello world!");
@@ -50,9 +59,8 @@ public class GreetingController {
         save(g2);
     }
 
-    @RequestMapping(
+    @GetMapping(
             value = "/api/greetings",
-            method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Collection<Greeting>> getGreetings() {
         Collection<Greeting> greetings = greetingMap.values();
@@ -60,8 +68,7 @@ public class GreetingController {
                 HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/api/greetings/{id}",
-            method = RequestMethod.GET,
+    @GetMapping(value = "/api/greetings/{id}",
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Greeting> getGreeting(@PathVariable("id") BigInteger id) {
 
@@ -74,8 +81,7 @@ public class GreetingController {
 
     }
 
-    @RequestMapping(value = "/api/greetings",
-            method = RequestMethod.POST,
+    @PostMapping(value = "/api/greetings",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Greeting> createGreeting(@RequestBody Greeting greeting) {
@@ -83,8 +89,7 @@ public class GreetingController {
         return new ResponseEntity<Greeting>(savedGreeting, HttpStatus.CREATED);
     }
 
-    @RequestMapping(value = "/api/greetings/{id}",
-            method = RequestMethod.PUT,
+    @PutMapping(value = "/api/greetings/{id}",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Greeting> updateGreeting(@RequestBody Greeting greeting) {
@@ -94,5 +99,18 @@ public class GreetingController {
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<Greeting>(updatedGreeting, HttpStatus.OK);
+    }
+
+    @DeleteMapping(value = "/api/greetings/{id}")
+    public ResponseEntity<Greeting> deleteGreeting
+            (@PathVariable("id") BigInteger id) {
+
+        boolean deleted = delete(id);
+        if (!deleted) {
+            return new ResponseEntity<Greeting>(
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        return new ResponseEntity<Greeting>(HttpStatus.NO_CONTENT);
     }
 }
